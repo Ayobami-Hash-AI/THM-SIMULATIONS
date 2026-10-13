@@ -135,6 +135,14 @@ Next prepared search: set the time picker to All time, then retrieve raw records
 Optionally add "event.code"=1 to locate process creation. If this returns no process-creation record across the full available range, document the missing telemetry and continue with the corroborated script and child-process evidence.
 
 
+## Process-creation search — zero results in restricted window
+
+The search `"win-3450" "process.pid"=3728 "event.code"=1` returned zero events, but the displayed interval remained October 6, 2026, 16:37:14.703–16:37:14.704. This is still a one-millisecond window. The result does not demonstrate absence of process-creation telemetry across the full dataset. The next step is to select All time explicitly, apply the time picker, and rerun the search.
+
+![Zero process-creation results within the unchanged one-millisecond window](screenshots/08-siem-process-create-zero-results-restricted-window.png)
+
+*Figure 8. The search is correctly narrowed by PID and event code, but its time scope remains restricted.*
+
 ### Timestamp discrepancy
 
 The initial alert is dated October 9, 2026. The new visible SIEM records display October 6, 2026. In Figure 3, the event Time column shows 16:40:56.703 while the raw timestamp shows 17:40:56.703. The one-hour display difference does not explain the three-day date discrepancy. Keep the alert and these records distinct until matching process identity, command lines, and timestamps establish correlation; an underlying simulation date inconsistency is possible but unverified.
