@@ -32,4 +32,12 @@ Supporting context: -ExecutionPolicy Bypass; downloads\exfiltration\ working dir
 
 ![Case form before completion](screenshots/11-incident-report-form-before-completion.png)
 
-The screenshot shows the form before the drafted report was entered. Submission has not been verified.
+The earlier screenshot shows the form before completion. The populated form is documented below; submission has not been verified.
+
+## Populated case-form evidence
+
+The analyst supplied a screenshot showing report text entered in the TryHackMe incident form, with **True positive** and **Yes** for escalation selected. The visible text records activity times, affected entities, and the beginning of the classification rationale. The remaining text is below the editor viewport; a successful submission or platform grading outcome is not shown.
+
+![Populated incident report with true-positive classification and escalation selected](screenshots/12-incident-report-populated-true-positive-escalation.png)
+
+*Figure 12. Report entered in the platform form. The two supplied images are byte-identical; one evidence copy is retained.*

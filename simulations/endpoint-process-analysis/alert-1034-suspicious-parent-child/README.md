@@ -120,3 +120,11 @@ These limits affect attribution and confirmation of successful delivery; they do
 I correlated script execution with child-process telemetry, distinguished attempted exfiltration from proven delivery, corrected a restrictive SIEM time range, and documented visibility limitations without treating them as evidence of benign activity.
 
 The detailed investigation history is retained in [investigation-notes.md](investigation-notes.md).
+
+## Populated case-form evidence
+
+The analyst supplied a screenshot showing report text entered in the TryHackMe incident form, with **True positive** and **Yes** for escalation selected. The visible text records activity times, affected entities, and the beginning of the classification rationale. The remaining text is below the editor viewport; a successful submission or platform grading outcome is not shown.
+
+![Populated incident report with true-positive classification and escalation selected](screenshots/12-incident-report-populated-true-positive-escalation.png)
+
+*Figure 12. Report entered in the platform form. The two supplied images are byte-identical; one evidence copy is retained.*
