@@ -143,6 +143,18 @@ The search `"win-3450" "process.pid"=3728 "event.code"=1` returned zero events, 
 
 *Figure 8. The search is correctly narrowed by PID and event code, but its time scope remains restricted.*
 
+## All-time process-creation search — no matching record
+
+I selected **All time** and reran `"win-3450" "process.pid"=3728 "event.code"=1`. The search returned **zero events**. Unlike the previous restricted searches, the picker now confirms All time and the result header no longer shows the one-millisecond interval. The timeline's residual “1 millisecond per column” label does not override the applied search scope.
+
+No matching process-creation record for PID 3728 was retrieved with this query from the available searchable data. This is a visibility limitation, not proof that the process never ran or that the activity was benign. The previously observed file-creation record, PowerShell script telemetry, and nslookup child processes remain valid evidence. The process's launch command and parent are unresolved, as is its relationship to PID 3880.
+
+![All-time process-creation search for PID 3728 returning zero events](screenshots/09-siem-pid-3728-process-create-all-time-no-results.png)
+
+*Figure 9. All-time scope confirmed; no matching Event ID 1 record retrieved.*
+
+For a final extraction check, prepare `"win-3450" "3728"` with All time and inspect raw records. Then prioritize available DNS or network telemetry to assess query transmission; avoid repeating the same unsuccessful narrow query.
+
 ### Timestamp discrepancy
 
 The initial alert is dated October 9, 2026. The new visible SIEM records display October 6, 2026. In Figure 3, the event Time column shows 16:40:56.703 while the raw timestamp shows 17:40:56.703. The one-hour display difference does not explain the three-day date discrepancy. Keep the alert and these records distinct until matching process identity, command lines, and timestamps establish correlation; an underlying simulation date inconsistency is possible but unverified.
