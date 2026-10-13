@@ -6,7 +6,7 @@ A portfolio of my hands-on SOC investigations in TryHackMe training environments
 
 | Category | Investigation | Status |
 |---|---|---|
-| Endpoint / process analysis | [Alert 1034 — Suspicious Parent–Child Relationship](simulations/endpoint-process-analysis/alert-1034-suspicious-parent-child/README.md) | Under investigation |
+| Endpoint / process analysis | [Alert 1034 — Suspicious Parent–Child Relationship](simulations/endpoint-process-analysis/alert-1034-suspicious-parent-child/README.md) | Attempted DNS exfiltration identified; correlation pending |
 
 ## Organization
 

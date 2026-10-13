@@ -1,11 +1,11 @@
 # Alert 1034 — Suspicious Parent–Child Relationship
 
 > TryHackMe simulated SOC investigation | Analyst: Ayobami Odulaja  
-> Status: **Under investigation** | Updated: 2026-10-13
+> Status: **Attempted DNS exfiltration identified; alert correlation pending** | Updated: 2026-10-13
 
 ## Investigation summary
 
-I began triaging a high-severity process alert on win-3450. The supplied Sysmon process-creation event records PowerShell launching nslookup with an encoded-looking subdomain of haz4rdw4re[.]io. I identified possible DNS-based data transfer as a hypothesis and prepared process and domain pivots for further investigation. A final verdict has not been established.
+I began triaging a high-severity process alert on win-3450. The supplied Sysmon process-creation event records PowerShell launching nslookup with an encoded-looking subdomain of haz4rdw4re[.]io. I identified possible DNS-based data transfer as a hypothesis and prepared process and domain pivots for further investigation. Subsequent all-time searches returned 97 host-string matches and 30 domain-string matches. PowerShell execution telemetry shows a script reading BitcoinWalletPasscodes.txt, Base64-encoding its contents, splitting the encoded string into chunks of up to 30 characters, and invoking nslookup with each chunk as a subdomain. This strongly supports attempted DNS exfiltration; successful external delivery and linkage to the October 9 alert remain unverified.
 
 This case documents a training environment, not a production incident.
 
@@ -34,7 +34,34 @@ The screenshot preserves the full command line and encoded-looking query label. 
 
 *Figure 1. Initial alert details. The username and host shown are simulation artifacts.*
 
-## Analysis and confidence
+## Executed SIEM searches and follow-up evidence
+
+I broadened the SIEM time range to **All time** after finding no results for the alert date.
+
+| Executed search | Matching events | Interpretation |
+|---|---:|---|
+| "win-3450" | 97 | Events containing the host string; not 97 malicious actions |
+| "haz4rdw4re.io" | 30 | Events containing the domain string; not necessarily 30 DNS requests or unique chunks |
+
+The domain-search screenshot includes PowerShell pipeline execution details for win-3450, under user context SSF\michael.ascot. The visible script references C:\Users\michael.ascot\Downloads\BitcoinWalletPasscodes.txt and uses ReadAllBytes, ToBase64String, a chunking expression, and Invoke-Expression to invoke nslookup. The PowerShell host application includes -ExecutionPolicy Bypass.
+
+![All-time host search returning 97 events](screenshots/02-siem-host-search-97-events.png)
+
+*Figure 2. Host-string search. Visible results include Sysmon and PowerShell records.*
+
+![Domain search returning 30 events with file encoding and nslookup execution](screenshots/03-siem-domain-search-30-events.png)
+
+*Figure 3. Domain-string search. The expanded PowerShell record provides evidence of file-content encoding and attempted transfer through DNS query names.*
+
+### Timestamp discrepancy
+
+The initial alert is dated October 9, 2026. The new visible SIEM records display October 6, 2026. In Figure 3, the event Time column shows 16:40:56.703 while the raw timestamp shows 17:40:56.703. The one-hour display difference does not explain the three-day date discrepancy. Keep the alert and these records distinct until matching process identity, command lines, and timestamps establish correlation; an underlying simulation date inconsistency is possible but unverified.
+
+### Updated assessment
+
+**High confidence in attempted DNS exfiltration behavior in the displayed PowerShell record.** Successful delivery to an external receiver is not proven by these screenshots. Authorization and exact correlation to Alert 1034 remain outstanding. No case closure or containment has been performed.
+
+## Initial analysis and confidence (before follow-up evidence)
 
 - **Observed:** PowerShell created an nslookup process with the command line shown in Figure 1.
 - **Hypothesis:** The query label may contain encoded data intended for transfer through DNS.
@@ -67,7 +94,7 @@ Use process GUIDs and timestamps where available to avoid correlating unrelated 
 "haz4rdw4re.io"
 ~~~
 
-## Next evidence required
+## Remaining evidence required
 
 1. Retrieve the parent PowerShell creation event and full command line; identify its parent and user context.
 2. Review script execution telemetry if available and identify any referenced script or input file.
@@ -78,7 +105,7 @@ Use process GUIDs and timestamps where available to avoid correlating unrelated 
 
 ## Disposition and response
 
-**Verdict: Pending.** No containment, domain blocking, escalation, or remediation has been performed or verified in this case.
+**Assessment: Attempted DNS exfiltration identified in follow-up telemetry; Alert 1034 correlation and final disposition pending.** No containment, domain blocking, escalation, or remediation has been performed or verified in this case.
 
 If additional evidence substantiates malicious activity, recommend escalation, host containment, evidence preservation, and domain blocking under the applicable playbook. Record proposed actions separately from actions actually performed.
 
