@@ -85,7 +85,33 @@ The UEsDB-style prefix in one query label may be consistent with Base64-encoded 
 | sort 0 _time
 ~~~
 
-Inspect the creation record for PowerShell PID 3728 and its parent. Prefer process GUID correlation if available. Separately inspect DNS telemetry to determine whether queries left the host and reached a resolver. This search is prepared, not yet evidenced as executed.
+Inspect the creation record for PowerShell PID 3728 and its parent. Prefer process GUID correlation if available. Separately inspect DNS telemetry to determine whether queries left the host and reached a resolver. This search was subsequently executed; see the PowerShell timeline evidence below.
+
+
+## Earlier PowerShell activity — apparent reverse-shell attempt
+
+I executed the prepared PowerShell timeline search with All time selected. It returned **68 matching events / table rows**, not 68 distinct PowerShell launches.
+
+The visible row at October 6, 2026, _time 16:35:49.703 (raw timestamp 17:35:49.703) identifies powershell.exe PID **3880**, with parent explorer.exe PID **3180**. Its command line uses IEX and System.Net.WebClient.DownloadString to retrieve content from the visible raw.githubusercontent.com/besimorhino/powercat/ URL prefix, then invokes Powercat with a client destination of **2.tcp.ngrok[.]io**, port **19282**, and PowerShell as the executable.
+
+This command is strongly consistent with an attempted reverse shell. The screenshot does not establish that the download succeeded, the connection was established, or remote commands were executed. The URL suffix is clipped and has not been reconstructed. GitHub hosting and ngrok are legitimate services; their appearance alone does not determine maliciousness.
+
+![PowerShell timeline showing Powercat connection command](screenshots/06-siem-powershell-timeline-powercat.png)
+
+*Figure 6. Chronological PowerShell search with 68 results. Visible process lineage: explorer.exe (3180) → powershell.exe (3880).*
+
+### Correlation limits and next pivot
+
+This activity precedes the visible DNS exfiltration attempts by approximately five minutes on October 6. Temporal proximity on the same host supports an investigation hypothesis, but **PID 3880 has not been linked to PID 3728**. Retrieve the process-creation record for PID 3728, compare process GUIDs and parent identity, and inspect network telemetry for 2.tcp.ngrok[.]io:19282.
+
+Prepared Splunk search, not yet executed:
+
+~~~spl
+"win-3450"
+| where 'process.pid'=3728 OR 'process.parent.pid'=3728
+~~~
+
+Keep raw events available for inspection rather than projecting only selected columns.
 
 
 ### Timestamp discrepancy
