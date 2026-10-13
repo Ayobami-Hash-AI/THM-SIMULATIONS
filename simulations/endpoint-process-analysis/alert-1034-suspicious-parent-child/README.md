@@ -114,6 +114,27 @@ Prepared Splunk search, not yet executed:
 Keep raw events available for inspection rather than projecting only selected columns.
 
 
+## PID 3728 file-creation event and search-window limitation
+
+A subsequent search for "win-3450" "powershell.exe" "process.pid"=3728 returned one event within the displayed interval October 6, 2026, 16:37:14.703–16:37:14.704: a **one-millisecond time window**. The result count therefore cannot establish that only one event exists for this process.
+
+The record is Sysmon **Event ID 11 / File created**, with powershell.exe PID 3728 and raw timestamp 10/06/2026 17:37:14.703. The file path is under the user's AppData\Local\Temp\5 directory and has a __PSScriptPolicyTest_ prefix with a .ps1 extension. The name suggests a PowerShell policy-test artifact, but the screenshot contains no file contents or verification of its purpose. Do not treat the filename alone as evidence of maliciousness.
+
+This event establishes activity attributed to PID 3728 at that time; it is **not** the process-creation record and provides no parent process or launch command line. The relationship to PowerShell PID 3880 remains unproven.
+
+![PID 3728 file-creation result within a one-millisecond search interval](screenshots/07-siem-pid-3728-file-create-narrow-window.png)
+
+*Figure 7. Event ID 11, with the narrow search interval visible above the results.*
+
+Next prepared search: set the time picker to All time, then retrieve raw records with:
+
+~~~spl
+"win-3450" "process.pid"=3728
+~~~
+
+Optionally add "event.code"=1 to locate process creation. If this returns no process-creation record across the full available range, document the missing telemetry and continue with the corroborated script and child-process evidence.
+
+
 ### Timestamp discrepancy
 
 The initial alert is dated October 9, 2026. The new visible SIEM records display October 6, 2026. In Figure 3, the event Time column shows 16:40:56.703 while the raw timestamp shows 17:40:56.703. The one-hour display difference does not explain the three-day date discrepancy. Keep the alert and these records distinct until matching process identity, command lines, and timestamps establish correlation; an underlying simulation date inconsistency is possible but unverified.
