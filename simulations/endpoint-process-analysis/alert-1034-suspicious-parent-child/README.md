@@ -53,6 +53,41 @@ The domain-search screenshot includes PowerShell pipeline execution details for 
 
 *Figure 3. Domain-string search. The expanded PowerShell record provides evidence of file-content encoding and attempted transfer through DNS query names.*
 
+## Process-creation corroboration
+
+I executed the all-time search "win-3450" "haz4rdw4re.io" "nslookup.exe", which returned **10 events**. The visible records are Sysmon Event ID 1 process-creation events. Field summaries show one parent PID value (3728), ten child PID values, and ten command-line values. These counts describe process records, not confirmed network delivery.
+
+| Visible child PID | Parent | Raw timestamp | Working directory |
+|---|---|---|---|
+| 3700 | powershell.exe / 3728 | 10/06/2026 17:40:56.703 | C:\Users\michael.ascot\downloads\ |
+| 5520 | powershell.exe / 3728 | 10/06/2026 17:40:40.703 | C:\Users\michael.ascot\downloads\exfiltration\ |
+| 4752 | powershell.exe / 3728 | 10/06/2026 17:40:40.703 | C:\Users\michael.ascot\downloads\exfiltration\ |
+
+The commands invoke C:\Windows\system32\nslookup.exe with varying encoded-looking subdomains of haz4rdw4re[.]io. This corroborates repeated execution consistent with the previously observed encoding-and-chunking script. The directory name exfiltration is supporting context, not independent proof.
+
+One visible command includes the same encoded label as the initial alert. The host, parent name, parent PID, and domain also match. These similarities strengthen association, but PID reuse and the October 6 versus October 9 discrepancy prevent treating them as the same event without further verification.
+
+The UEsDB-style prefix in one query label may be consistent with Base64-encoded ZIP content. This is an unverified format clue; the queried source file for that event has not been established and should not be assumed to be BitcoinWalletPasscodes.txt.
+
+![Combined host, domain, and executable search returning 10 events](screenshots/04-siem-nslookup-process-search-10-events.png)
+
+*Figure 4. Sysmon process-creation result, including child PID 3700 and parent PID 3728.*
+
+![Additional nslookup processes with varying query labels](screenshots/05-siem-nslookup-process-details.png)
+
+*Figure 5. Child PIDs 5520 and 4752, launched from the downloads\exfiltration directory. Two uploaded copies of this screenshot had identical SHA-256 hashes; one copy is retained.*
+
+### Next prepared search
+
+~~~spl
+"win-3450" "powershell.exe"
+| table _time timestamp process.name process.pid process.parent.name process.parent.pid process.command_line
+| sort 0 _time
+~~~
+
+Inspect the creation record for PowerShell PID 3728 and its parent. Prefer process GUID correlation if available. Separately inspect DNS telemetry to determine whether queries left the host and reached a resolver. This search is prepared, not yet evidenced as executed.
+
+
 ### Timestamp discrepancy
 
 The initial alert is dated October 9, 2026. The new visible SIEM records display October 6, 2026. In Figure 3, the event Time column shows 16:40:56.703 while the raw timestamp shows 17:40:56.703. The one-hour display difference does not explain the three-day date discrepancy. Keep the alert and these records distinct until matching process identity, command lines, and timestamps establish correlation; an underlying simulation date inconsistency is possible but unverified.
